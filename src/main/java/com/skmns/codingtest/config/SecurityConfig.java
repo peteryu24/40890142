@@ -17,11 +17,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .headers(headers -> headers.frameOptions().sameOrigin()) 
-                .authorizeHttpRequests((registry) ->
-                        registry.requestMatchers("/**").permitAll()
-                                .anyRequest().authenticated()
-                )
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
+                .authorizeHttpRequests((registry) -> registry.requestMatchers("/**").permitAll()
+                        .anyRequest().authenticated())
                 .build();
     }
 }

@@ -2,42 +2,49 @@ package com.skmns.codingtest.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "articles")
-public class Article {
+public class ArticleEntity {
+
     @Id
-    @Column(name = "article_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "article_id")
     private Long articleId;
 
-    @Column(name = "title", length = 255, nullable = false)
+    @Column(name = "title", nullable = false, length = 255)
     private String title;
 
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "view_count", nullable = false)
     private int viewCount;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User author;
+    @Column(name = "has_file", nullable = false)
+    private boolean hasFile;
 
-    public Article() {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity author;
+
+    public ArticleEntity() {
     }
 
-    public Article(Long articleId, String title, String content, LocalDateTime createdAt, int viewCount, User author) {
+    public ArticleEntity(Long articleId, String title, String content, LocalDateTime createdAt, int viewCount,
+            boolean hasFile, UserEntity author) {
         this.articleId = articleId;
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
         this.viewCount = viewCount;
+        this.hasFile = hasFile;
         this.author = author;
     }
 
@@ -81,11 +88,19 @@ public class Article {
         this.viewCount = viewCount;
     }
 
-    public User getAuthor() {
+    public boolean isHasFile() {
+        return hasFile;
+    }
+
+    public void setHasFile(boolean hasFile) {
+        this.hasFile = hasFile;
+    }
+
+    public UserEntity getAuthor() {
         return author;
     }
 
-    public void setAuthor(User author) {
+    public void setAuthor(UserEntity author) {
         this.author = author;
     }
 }

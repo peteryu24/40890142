@@ -7,29 +7,18 @@ import jakarta.persistence.*;
 public class FileEntity {
 
     @Id
-    @Column(name = "file_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "file_id")
     private Long fileId;
 
-    @Column(name = "file_name", length = 255, nullable = false)
+    @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    @Column(name = "file_path", length = 512, nullable = false)
-    private String filePath;
+    @Column(name = "file_url", nullable = false)
+    private String fileUrl;
 
-    @ManyToOne
-    @JoinColumn(name = "article_id", nullable = false)
-    private ArticleEntity article; // 게시글과 연관 관계 설정
-
-    public FileEntity() {
-    }
-
-    public FileEntity(Long fileId, String fileName, String filePath, ArticleEntity article) {
-        this.fileId = fileId;
-        this.fileName = fileName;
-        this.filePath = filePath;
-        this.article = article;
-    }
+    @Column(name = "article_id", nullable = false)
+    private Long articleId;
 
     public Long getFileId() {
         return fileId;
@@ -47,19 +36,19 @@ public class FileEntity {
         this.fileName = fileName;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getFileUrl() {
+        return fileUrl;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
     }
 
-    public ArticleEntity getArticle() {
-        return article;
+    public Long getArticleId() {
+        return articleId;
     }
 
-    public void setArticle(ArticleEntity article) {
-        this.article = article;
+    public void setArticleId(Long articleId) {
+        this.articleId = articleId;
     }
 }
