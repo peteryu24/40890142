@@ -12,7 +12,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(article, index) in articles" :key="article.articleId">
+        <tr
+          v-for="(article, index) in articles"
+          :key="article.articleId"
+          @click="goToDetail(article.articleId)"
+          style="cursor: pointer"
+        >
           <td>{{ index + 1 }}</td>
           <td>{{ article.title }}</td>
           <td>{{ formatDate(article.createdAt) }}</td>
@@ -47,46 +52,12 @@ export default {
       const options = { year: "numeric", month: "2-digit", day: "2-digit" };
       return new Date(dateString).toLocaleDateString("ko-KR", options);
     },
+    goToDetail(articleId) {
+      this.$router.push(`/articles/${articleId}`);
+    },
   },
   mounted() {
     this.fetchArticles();
   },
 };
 </script>
-
-<style scoped>
-.article-list {
-  max-width: 800px;
-  margin: 0 auto;
-  font-family: Arial, sans-serif;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: center;
-}
-
-thead {
-  background-color: #f8f9fa;
-}
-
-th,
-td {
-  border: 1px solid #dee2e6;
-  padding: 10px;
-}
-
-tbody tr:nth-child(even) {
-  background-color: #f1f3f5;
-}
-
-tbody tr:hover {
-  background-color: #e9ecef;
-}
-</style>
