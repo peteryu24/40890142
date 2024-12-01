@@ -2,6 +2,7 @@ package com.skmns.codingtest.controller;
 
 import com.skmns.codingtest.dto.ArticleDTO;
 import com.skmns.codingtest.service.ArticleService;
+import com.skmns.codingtest.util.PaginationUtil;
 import com.skmns.codingtest.vo.ArticleVO;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,20 +19,6 @@ public class ArticleController {
         this.articleService = articleService;
     }
 
-    @GetMapping
-    public List<ArticleDTO> getArticles() {
-        List<ArticleVO> articleVOList = articleService.getArticleList();
-        return articleVOList.stream()
-                .map(articleVO -> new ArticleDTO(
-                        articleVO.getArticleId(),
-                        articleVO.getTitle(),
-                        articleVO.getContent(),
-                        articleVO.getCreatedAt(),
-                        articleVO.getViewCount(),
-                        articleVO.isHasFile()))
-                .collect(Collectors.toList());
-    }
-
     @GetMapping("/{id}")
     public ArticleDTO getArticle(@PathVariable Long id) {
         ArticleVO articleVO = articleService.getArticleWithFiles(id);
@@ -41,7 +28,29 @@ public class ArticleController {
                 articleVO.getContent(),
                 articleVO.getCreatedAt(),
                 articleVO.getViewCount(),
-                articleVO.isHasFile());
+                articleVO.isHasFile(),
+                articleVO.getAuthorUsername());
+    }
+
+    @GetMapping
+    public PaginationUtil<ArticleDTO> getArticles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PaginationUtil<ArticleVO> articleVOs = articleService.getArticles(page, size);
+
+        List<ArticleDTO> articleDTOs = articleVOs.getContent().stream()
+                .map(vo -> new ArticleDTO(
+                        vo.getArticleId(),
+                        vo.getTitle(),
+                        vo.getContent(),
+                        vo.getCreatedAt(),
+                        vo.getViewCount(),
+                        vo.isHasFile(),
+                        vo.getAuthorUsername()))
+                .toList();
+
+        return new PaginationUtil<>(articleDTOs, articleVOs.getTotalPages(),
+                articleVOs.getCurrentPage(), articleVOs.getTotalElements());
     }
 
 }

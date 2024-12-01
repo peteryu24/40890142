@@ -1,63 +1,70 @@
 <template>
-  <div class="article-list">
+  <div>
     <h1>게시물 목록</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>번호</th>
-          <th>제목</th>
-          <th>날짜</th>
-          <th>조회수</th>
-          <th>첨부파일</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(article, index) in articles"
-          :key="article.articleId"
-          @click="goToDetail(article.articleId)"
-          style="cursor: pointer"
-        >
-          <td>{{ index + 1 }}</td>
-          <td>{{ article.title }}</td>
-          <td>{{ formatDate(article.createdAt) }}</td>
-          <td>{{ article.viewCount }}</td>
-          <td>{{ article.hasFile ? "있음" : "없음" }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <ul>
+      <li v-for="article in articles" :key="article.articleId">
+        <router-link :to="{ name: 'ArticleDetail', params: { id: article.articleId } }">
+          {{ article.title }} - 조회수: {{ article.viewCount }}
+        </router-link>
+      </li>
+    </ul>
+
+    <div class="pagination">
+      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">이전</button>
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        :class="{ active: page === currentPage }"
+        @click="changePage(page)"
+      >
+        {{ page }}
+      </button>
+      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">
+        다음
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
-  name: "ArticleList",
   data() {
     return {
       articles: [],
+      currentPage: 1,
+      totalPages: 0,
     };
   },
   methods: {
-    fetchArticles() {
-      fetch("http://localhost:8080/articles")
-        .then((response) => response.json())
-        .then((data) => {
-          this.articles = data;
+    fetchArticles(page) {
+      axios
+        .get(`http://localhost:8080/articles?page=${page - 1}&size=10`)
+        .then((response) => {
+          this.articles = response.data.content;
+          this.totalPages = response.data.totalPages;
         })
         .catch((error) => {
-          console.error("Error fetching articles:", error);
+          console.error(error);
         });
     },
-    formatDate(dateString) {
-      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-      return new Date(dateString).toLocaleDateString("ko-KR", options);
-    },
-    goToDetail(articleId) {
-      this.$router.push(`/articles/${articleId}`);
+    changePage(page) {
+      if (page > 0 && page <= this.totalPages) {
+        this.currentPage = page;
+        this.fetchArticles(page);
+      }
     },
   },
-  mounted() {
-    this.fetchArticles();
+  created() {
+    this.fetchArticles(this.currentPage);
   },
 };
 </script>
+
+<style>
+.pagination button.active {
+  font-weight: bold;
+  color: red;
+}
+</style>
