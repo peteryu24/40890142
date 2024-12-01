@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "files")
-public class File {
+public class FileEntity {
 
     @Id
     @Column(name = "file_id")
@@ -19,12 +19,12 @@ public class File {
 
     @ManyToOne
     @JoinColumn(name = "article_id", nullable = false)
-    private Article article; // 게시글과 연관 관계 설정
+    private ArticleEntity article; // 게시글과 연관 관계 설정
 
-    public File() {
+    public FileEntity() {
     }
 
-    public File(Long fileId, String fileName, String filePath, Article article) {
+    public FileEntity(Long fileId, String fileName, String filePath, ArticleEntity article) {
         this.fileId = fileId;
         this.fileName = fileName;
         this.filePath = filePath;
@@ -55,11 +55,11 @@ public class File {
         this.filePath = filePath;
     }
 
-    public Article getArticle() {
+    public ArticleEntity getArticle() {
         return article;
     }
 
-    public void setArticle(Article article) {
+    public void setArticle(ArticleEntity article) {
         this.article = article;
     }
 }
