@@ -34,4 +34,20 @@ public class Authority {
                 "authorityName='" + authorityName + '\'' +
                 '}';
     }
+    public static class Builder {
+        private String authorityName;
+
+        public Builder authorityName(String authorityName) {
+            this.authorityName = authorityName;
+            return this;
+        }
+
+        public Authority build() {
+            return new Authority(authorityName);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
 }

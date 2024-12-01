@@ -27,7 +27,8 @@ spring:
 
 jwt:
     header: Authorization
-    secret: 
+    # skmns-coding-test-spring-boot-spring-security-jwt-token-kyoung-churl-lyu
+    secret: c2ttbnMtY29kaW5nLXRlc3Qtc3ByaW5nLWJvb3Qtc3ByaW5nLXNlY3VyaXR5LWp3dC10b2tlbi1reW91bmctY2h1cmwtbHl1
     token-validity-in-seconds: 86400          
 
 logging:
