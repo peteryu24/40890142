@@ -4,13 +4,15 @@ import com.skmns.codingtest.dto.ArticleDTO;
 import com.skmns.codingtest.entity.UserEntity;
 import com.skmns.codingtest.service.ArticleService;
 import com.skmns.codingtest.util.PaginationUtil;
+import com.skmns.codingtest.util.SkmnsResult;
 import com.skmns.codingtest.vo.ArticleVO;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -25,9 +27,9 @@ public class ArticleController {
         }
 
         @GetMapping("/{id}")
-        public ArticleDTO getArticleDetails(@PathVariable Long id) {
+        public SkmnsResult<ArticleDTO> getArticleDetails(@PathVariable Long id) {
                 ArticleVO articleVO = articleService.getArticleDetails(id);
-                return new ArticleDTO(
+                ArticleDTO articleDTO = new ArticleDTO(
                                 articleVO.getArticleId(),
                                 articleVO.getTitle(),
                                 articleVO.getContent(),
@@ -35,13 +37,16 @@ public class ArticleController {
                                 articleVO.getViewCount(),
                                 articleVO.isHasFile(),
                                 articleVO.getAuthorUsername());
+
+                return new SkmnsResult<>("게시글 조회 성공", HttpStatus.OK.value(), articleDTO);
         }
 
         @GetMapping
-        public PaginationUtil<ArticleDTO> getPaginatedArticles(@RequestParam(defaultValue = "0") int page,
+        public SkmnsResult<PaginationUtil<ArticleDTO>> getPaginatedArticles(
+                        @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int size) {
-                PaginationUtil<ArticleVO> articleVOs = articleService.getPaginatedArticles(page, size);
 
+                PaginationUtil<ArticleVO> articleVOs = articleService.getPaginatedArticles(page, size);
                 List<ArticleDTO> articleDTOs = articleVOs.getContent().stream()
                                 .map(vo -> new ArticleDTO(
                                                 vo.getArticleId(),
@@ -53,14 +58,19 @@ public class ArticleController {
                                                 vo.getAuthorUsername()))
                                 .toList();
 
-                return new PaginationUtil<>(articleDTOs, articleVOs.getTotalPages(),
-                                articleVOs.getCurrentPage(), articleVOs.getTotalElements());
+                PaginationUtil<ArticleDTO> articlePaginationDTO = new PaginationUtil<>(
+                                articleDTOs,
+                                articleVOs.getTotalPages(),
+                                articleVOs.getCurrentPage(),
+                                articleVOs.getTotalElements());
+
+                return new SkmnsResult<>("게시글 목록 조회 성공", HttpStatus.OK.value(), articlePaginationDTO);
         }
 
         @PostMapping(consumes = { "multipart/form-data" })
-        public ResponseEntity<String> createArticle(
-                        @RequestParam("title") String title,
-                        @RequestParam("content") String content,
+        public SkmnsResult<Void> createArticle(
+                        @RequestParam("title") @Valid String title,
+                        @RequestParam("content") @Valid String content,
                         @RequestParam(value = "files", required = false) List<MultipartFile> files,
                         @AuthenticationPrincipal UserEntity user) throws IOException {
 
@@ -68,32 +78,33 @@ public class ArticleController {
                                 files != null && !files.isEmpty());
                 articleService.createArticle(articleVO, user, files);
 
-                return ResponseEntity.ok("게시물이 작성되었습니다.");
+                return new SkmnsResult<>("게시물이 작성되었습니다.", HttpStatus.CREATED.value());
         }
 
-        @PutMapping(value = "/{id}", consumes = { "multipart/form-data" })
-        public ResponseEntity<String> updateArticle(
+        @PutMapping("/{id}")
+        public SkmnsResult<Void> updateArticle(
                         @PathVariable Long id,
-                        @RequestParam("title") String title,
-                        @RequestParam("content") String content,
-                        @RequestParam(value = "files", required = false) List<MultipartFile> files,
+                        @RequestParam("title") @Valid String title,
+                        @RequestParam("content") @Valid String content,
+                        @RequestParam(value = "files", required = false) List<MultipartFile> newFiles,
                         @RequestParam(value = "deleteFileIds", required = false) List<Long> deleteFileIds,
                         @AuthenticationPrincipal UserEntity user) throws IOException {
 
                 ArticleVO articleVO = new ArticleVO(id, title, content, null, 0, user.getUsername(),
-                                files != null && !files.isEmpty());
-                articleService.updateArticle(articleVO, user, files, deleteFileIds);
+                                newFiles != null && !newFiles.isEmpty());
 
-                return ResponseEntity.ok("게시물이 수정되었습니다.");
+                articleService.updateArticle(articleVO, user, newFiles, deleteFileIds);
+
+                return new SkmnsResult<>("게시물이 수정되었습니다.", HttpStatus.OK.value());
         }
 
         @DeleteMapping("/{id}")
-        public ResponseEntity<String> deleteArticle(
+        public SkmnsResult<Void> deleteArticle(
                         @PathVariable Long id,
                         @AuthenticationPrincipal UserEntity user) {
 
                 articleService.deleteArticle(id, user);
-                return ResponseEntity.ok("게시물이 삭제되었습니다.");
-        }
 
+                return new SkmnsResult<>("게시물이 삭제되었습니다.", HttpStatus.OK.value());
+        }
 }

@@ -1,13 +1,10 @@
 package com.skmns.codingtest.service;
 
 import com.skmns.codingtest.entity.ArticleEntity;
-import com.skmns.codingtest.entity.FileEntity;
 import com.skmns.codingtest.entity.UserEntity;
 import com.skmns.codingtest.repository.ArticleRepository;
-import com.skmns.codingtest.repository.FileRepository;
 import com.skmns.codingtest.util.PaginationUtil;
 import com.skmns.codingtest.vo.ArticleVO;
-import com.skmns.codingtest.vo.FileVO;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -81,7 +78,7 @@ public class ArticleService {
                                 null,
                                 articleVO.getTitle(),
                                 articleVO.getContent(),
-                                null, // createdAt은 @CreationTimestamp에 의해 자동 설정
+                                null, // @CreationTimestamp
                                 0,
                                 user);
 
@@ -95,26 +92,32 @@ public class ArticleService {
         }
 
         @Transactional
-        public void updateArticle(ArticleVO articleVO, UserEntity user, List<MultipartFile> files,
+        public void updateArticle(
+                        ArticleVO articleVO,
+                        UserEntity user,
+                        List<MultipartFile> newFiles,
                         List<Long> deleteFileIds) throws IOException {
-                ArticleEntity article = articleRepository.findById(articleVO.getArticleId())
-                                .orElseThrow(() -> new IllegalArgumentException("Article not found"));
 
+                ArticleEntity article = articleRepository.findById(articleVO.getArticleId())
+                                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+                // 작성자 확인
                 if (!article.getAuthor().getUserId().equals(user.getUserId())) {
                         throw new SecurityException("작성자만 게시글을 수정할 수 있습니다.");
                 }
 
+                // 게시글 업데이트
                 article.setTitle(articleVO.getTitle());
                 article.setContent(articleVO.getContent());
 
-                // 삭제 요청된 파일 처리
+                // 파일 삭제 처리
                 if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
                         fileService.deleteFilesByIds(deleteFileIds);
                 }
 
-                // 새 파일 처리
-                if (files != null && !files.isEmpty()) {
-                        fileService.attachFilesToArticle(files, article);
+                // 파일 추가 처리
+                if (newFiles != null && !newFiles.isEmpty()) {
+                        fileService.attachFilesToArticle(newFiles, article);
                 }
 
                 articleRepository.save(article);

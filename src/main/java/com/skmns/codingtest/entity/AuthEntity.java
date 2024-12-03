@@ -3,8 +3,8 @@ package com.skmns.codingtest.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users")
-public class UserEntity {
+@Table(name = "auth")
+public class AuthEntity {
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,10 +16,10 @@ public class UserEntity {
     @Column(name = "password", length = 255, nullable = false)
     private String password;
 
-    public UserEntity() {
+    public AuthEntity() {
     }
 
-    public UserEntity(Long userId, String username, String password) {
+    public AuthEntity(Long userId, String username, String password) {
         this.userId = userId;
         this.username = username;
         this.password = password;

@@ -1,5 +1,5 @@
-INSERT INTO users (username, password) VALUES ('skmns01', '0000');
-INSERT INTO users (username, password) VALUES ('skmns02', '1111');
+INSERT INTO auth (username, password) VALUES ('skmns01', '0000');
+INSERT INTO auth (username, password) VALUES ('skmns02', '1111');
 
 INSERT INTO articles (title, content, user_id, view_count, created_at, has_file) VALUES ('First', '1111', 1, 1001, NOW(), false);
 INSERT INTO articles (title, content, user_id, view_count, created_at, has_file) VALUES ('Second', '2222', 1, 1010, NOW(), false);
