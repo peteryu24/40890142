@@ -1,7 +1,6 @@
 package com.skmns.codingtest.vo;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class ArticleVO {
     private Long articleId;
