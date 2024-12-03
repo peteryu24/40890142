@@ -22,8 +22,6 @@ public class ArticleDTO {
         this.authorUsername = authorUsername;
     }
 
-    // setter의 사용 X :: 데이터 불변성 보장
-
     public Long getArticleId() {
         return articleId;
     }
