@@ -3,10 +3,10 @@ package com.skmns.codingtest.controller;
 import com.skmns.codingtest.dto.ArticleDTO;
 import com.skmns.codingtest.entity.AuthEntity;
 import com.skmns.codingtest.service.ArticleService;
+import com.skmns.codingtest.util.ArticleConverterUtil;
 import com.skmns.codingtest.util.PaginationUtil;
 import com.skmns.codingtest.util.SkmnsResult;
 import com.skmns.codingtest.vo.ArticleVO;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -28,15 +28,7 @@ public class ArticleController {
         @GetMapping("/{id}")
         public SkmnsResult<ArticleDTO> getArticleDetails(@PathVariable Long id) {
                 ArticleVO articleVO = articleService.getArticleDetails(id);
-                ArticleDTO articleDTO = new ArticleDTO(
-                                articleVO.getArticleId(),
-                                articleVO.getTitle(),
-                                articleVO.getContent(),
-                                articleVO.getCreatedAt(),
-                                articleVO.getViewCount(),
-                                articleVO.isHasFile(),
-                                articleVO.getAuthorUsername());
-
+                ArticleDTO articleDTO = ArticleConverterUtil.toDTO(articleVO);
                 return new SkmnsResult<>("게시글 조회 성공", HttpStatus.OK.value(), articleDTO);
         }
 
@@ -47,14 +39,7 @@ public class ArticleController {
 
                 PaginationUtil<ArticleVO> articleVOs = articleService.getPaginatedArticles(page, size);
                 List<ArticleDTO> articleDTOs = articleVOs.getContent().stream()
-                                .map(vo -> new ArticleDTO(
-                                                vo.getArticleId(),
-                                                vo.getTitle(),
-                                                vo.getContent(),
-                                                vo.getCreatedAt(),
-                                                vo.getViewCount(),
-                                                vo.isHasFile(),
-                                                vo.getAuthorUsername()))
+                                .map(ArticleConverterUtil::toDTO)
                                 .toList();
 
                 PaginationUtil<ArticleDTO> articlePaginationDTO = new PaginationUtil<>(
@@ -76,7 +61,6 @@ public class ArticleController {
                 ArticleVO articleVO = new ArticleVO(null, title, content, null, 0, user.getUsername(),
                                 files != null && !files.isEmpty());
                 articleService.createArticle(articleVO, user, files);
-
                 return new SkmnsResult<>("게시물이 작성되었습니다.", HttpStatus.CREATED.value());
         }
 
@@ -91,9 +75,7 @@ public class ArticleController {
 
                 ArticleVO articleVO = new ArticleVO(id, title, content, null, 0, user.getUsername(),
                                 newFiles != null && !newFiles.isEmpty());
-
                 articleService.updateArticle(articleVO, user, newFiles, deleteFileIds);
-
                 return new SkmnsResult<>("게시물이 수정되었습니다.", HttpStatus.OK.value());
         }
 
@@ -103,7 +85,6 @@ public class ArticleController {
                         @AuthenticationPrincipal AuthEntity user) {
 
                 articleService.deleteArticle(id, user);
-
                 return new SkmnsResult<>("게시물이 삭제되었습니다.", HttpStatus.OK.value());
         }
 }

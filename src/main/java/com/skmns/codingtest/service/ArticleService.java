@@ -4,8 +4,8 @@ import com.skmns.codingtest.entity.ArticleEntity;
 import com.skmns.codingtest.entity.AuthEntity;
 import com.skmns.codingtest.repository.ArticleRepository;
 import com.skmns.codingtest.util.PaginationUtil;
+import com.skmns.codingtest.util.ArticleConverterUtil;
 import com.skmns.codingtest.vo.ArticleVO;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -26,54 +26,27 @@ public class ArticleService {
                 this.fileService = fileService;
         }
 
-        /**
-         * 게시글 상세 조회 (파일은 FileService에서 별도로 조회)
-         */
         public ArticleVO getArticleDetails(Long articleId) {
                 ArticleEntity article = articleRepository.findById(articleId)
                                 .orElseThrow(() -> new IllegalArgumentException("Article not found"));
 
-                return new ArticleVO(
-                                article.getArticleId(),
-                                article.getTitle(),
-                                article.getContent(),
-                                article.getCreatedAt(),
-                                article.getViewCount(),
-                                article.getAuthor().getUsername(),
-                                article.isHasFile() // 파일 유무만 반환
-                );
+                return ArticleConverterUtil.toVO(article);
         }
 
-        /**
-         * 게시글 목록 조회 (페이징)
-         * 기본 정보와 파일 유무만 포함
-         */
         public PaginationUtil<ArticleVO> getPaginatedArticles(int page, int size) {
                 PageRequest pageRequest = PageRequest.of(page, size);
                 Page<ArticleEntity> articlePage = articleRepository.findAll(pageRequest);
 
                 List<ArticleVO> articles = articlePage.getContent().stream()
-                                .map(article -> new ArticleVO(
-                                                article.getArticleId(),
-                                                article.getTitle(),
-                                                article.getContent(),
-                                                article.getCreatedAt(),
-                                                article.getViewCount(),
-                                                article.getAuthor().getUsername(),
-                                                article.isHasFile())) // 파일 유무만 포함
+                                .map(ArticleConverterUtil::toVO)
                                 .toList();
 
                 return new PaginationUtil<>(articles, articlePage.getTotalPages(), articlePage.getNumber(),
                                 articlePage.getTotalElements());
         }
 
-        /**
-         * 게시글 생성 (파일은 FileService에서 처리)
-         */
         @Transactional
-        public void createArticle(ArticleVO articleVO, AuthEntity user, List<MultipartFile> files)
-                        throws IOException {
-                // 게시글 생성
+        public void createArticle(ArticleVO articleVO, AuthEntity user, List<MultipartFile> files) throws IOException {
                 ArticleEntity article = new ArticleEntity(
                                 null,
                                 articleVO.getTitle(),
@@ -82,10 +55,8 @@ public class ArticleService {
                                 0,
                                 user);
 
-                // 게시글 저장
                 articleRepository.save(article);
 
-                // 파일 처리 (파일 Service에 위임)
                 if (files != null && !files.isEmpty()) {
                         fileService.attachFilesToArticle(files, article);
                 }
@@ -101,21 +72,17 @@ public class ArticleService {
                 ArticleEntity article = articleRepository.findById(articleVO.getArticleId())
                                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
-                // 작성자 확인
                 if (!article.getAuthor().getUserId().equals(user.getUserId())) {
                         throw new SecurityException("작성자만 게시글을 수정할 수 있습니다.");
                 }
 
-                // 게시글 업데이트
                 article.setTitle(articleVO.getTitle());
                 article.setContent(articleVO.getContent());
 
-                // 파일 삭제 처리
                 if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
                         fileService.deleteFilesByIds(deleteFileIds);
                 }
 
-                // 파일 추가 처리
                 if (newFiles != null && !newFiles.isEmpty()) {
                         fileService.attachFilesToArticle(newFiles, article);
                 }
@@ -125,7 +92,6 @@ public class ArticleService {
 
         @Transactional
         public void deleteArticle(Long articleId, AuthEntity user) {
-                // 게시글 조회 및 작성자 확인
                 ArticleEntity article = articleRepository.findById(articleId)
                                 .orElseThrow(() -> new IllegalArgumentException("Article not found"));
 
@@ -133,11 +99,7 @@ public class ArticleService {
                         throw new SecurityException("작성자만 게시글을 삭제할 수 있습니다.");
                 }
 
-                // 파일 삭제
                 fileService.deleteFilesByArticle(article);
-
-                // 게시글 삭제
                 articleRepository.delete(article);
         }
-
 }
