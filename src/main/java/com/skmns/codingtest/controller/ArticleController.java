@@ -1,7 +1,7 @@
 package com.skmns.codingtest.controller;
 
 import com.skmns.codingtest.dto.ArticleDTO;
-import com.skmns.codingtest.entity.UserEntity;
+import com.skmns.codingtest.entity.AuthEntity;
 import com.skmns.codingtest.service.ArticleService;
 import com.skmns.codingtest.util.PaginationUtil;
 import com.skmns.codingtest.util.SkmnsResult;
@@ -12,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -69,10 +68,10 @@ public class ArticleController {
 
         @PostMapping(consumes = { "multipart/form-data" })
         public SkmnsResult<Void> createArticle(
-                        @RequestParam("title") @Valid String title,
-                        @RequestParam("content") @Valid String content,
+                        @RequestParam("title") String title,
+                        @RequestParam("content") String content,
                         @RequestParam(value = "files", required = false) List<MultipartFile> files,
-                        @AuthenticationPrincipal UserEntity user) throws IOException {
+                        @AuthenticationPrincipal AuthEntity user) throws IOException {
 
                 ArticleVO articleVO = new ArticleVO(null, title, content, null, 0, user.getUsername(),
                                 files != null && !files.isEmpty());
@@ -84,11 +83,11 @@ public class ArticleController {
         @PutMapping("/{id}")
         public SkmnsResult<Void> updateArticle(
                         @PathVariable Long id,
-                        @RequestParam("title") @Valid String title,
-                        @RequestParam("content") @Valid String content,
+                        @RequestParam("title") String title,
+                        @RequestParam("content") String content,
                         @RequestParam(value = "files", required = false) List<MultipartFile> newFiles,
                         @RequestParam(value = "deleteFileIds", required = false) List<Long> deleteFileIds,
-                        @AuthenticationPrincipal UserEntity user) throws IOException {
+                        @AuthenticationPrincipal AuthEntity user) throws IOException {
 
                 ArticleVO articleVO = new ArticleVO(id, title, content, null, 0, user.getUsername(),
                                 newFiles != null && !newFiles.isEmpty());
@@ -101,7 +100,7 @@ public class ArticleController {
         @DeleteMapping("/{id}")
         public SkmnsResult<Void> deleteArticle(
                         @PathVariable Long id,
-                        @AuthenticationPrincipal UserEntity user) {
+                        @AuthenticationPrincipal AuthEntity user) {
 
                 articleService.deleteArticle(id, user);
 

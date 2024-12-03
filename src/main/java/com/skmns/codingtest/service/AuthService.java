@@ -2,6 +2,8 @@ package com.skmns.codingtest.service;
 
 import com.skmns.codingtest.entity.AuthEntity;
 import com.skmns.codingtest.repository.AuthRepository;
+import com.skmns.codingtest.vo.AuthVO;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,11 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public AuthEntity registerUser(String username, String password) {
+    public AuthVO registerUser(String username, String password) {
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("비밀번호는 null일 수 없습니다.");
+        }
+
         if (authRepository.findByUsername(username).isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
         }
@@ -25,10 +31,11 @@ public class AuthService {
         newUser.setUsername(username);
         newUser.setPassword(passwordEncoder.encode(password));
 
-        return authRepository.save(newUser);
+        AuthEntity savedUser = authRepository.save(newUser);
+        return new AuthVO(savedUser.getUserId(), savedUser.getUsername());
     }
 
-    public AuthEntity authenticate(String username, String password) {
+    public AuthVO authenticate(String username, String password) {
         AuthEntity user = authRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
@@ -36,6 +43,6 @@ public class AuthService {
             throw new SecurityException("비밀번호가 일치하지 않습니다.");
         }
 
-        return user;
+        return new AuthVO(user.getUserId(), user.getUsername());
     }
 }

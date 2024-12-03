@@ -1,7 +1,7 @@
 package com.skmns.codingtest.service;
 
 import com.skmns.codingtest.entity.ArticleEntity;
-import com.skmns.codingtest.entity.UserEntity;
+import com.skmns.codingtest.entity.AuthEntity;
 import com.skmns.codingtest.repository.ArticleRepository;
 import com.skmns.codingtest.util.PaginationUtil;
 import com.skmns.codingtest.vo.ArticleVO;
@@ -71,7 +71,7 @@ public class ArticleService {
          * 게시글 생성 (파일은 FileService에서 처리)
          */
         @Transactional
-        public void createArticle(ArticleVO articleVO, UserEntity user, List<MultipartFile> files)
+        public void createArticle(ArticleVO articleVO, AuthEntity user, List<MultipartFile> files)
                         throws IOException {
                 // 게시글 생성
                 ArticleEntity article = new ArticleEntity(
@@ -94,7 +94,7 @@ public class ArticleService {
         @Transactional
         public void updateArticle(
                         ArticleVO articleVO,
-                        UserEntity user,
+                        AuthEntity user,
                         List<MultipartFile> newFiles,
                         List<Long> deleteFileIds) throws IOException {
 
@@ -124,7 +124,7 @@ public class ArticleService {
         }
 
         @Transactional
-        public void deleteArticle(Long articleId, UserEntity user) {
+        public void deleteArticle(Long articleId, AuthEntity user) {
                 // 게시글 조회 및 작성자 확인
                 ArticleEntity article = articleRepository.findById(articleId)
                                 .orElseThrow(() -> new IllegalArgumentException("Article not found"));

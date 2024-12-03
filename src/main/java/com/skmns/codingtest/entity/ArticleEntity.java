@@ -27,20 +27,20 @@ public class ArticleEntity {
     private LocalDateTime createdAt;
 
     @Column(name = "view_count", nullable = false, columnDefinition = "int default 0")
-    private int viewCount = 0;
+    private int viewCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity author;
+    private AuthEntity author;
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FileEntity> files = new ArrayList<>();
+    @Column(name = "has_file", nullable = false)
+    private boolean hasFile;
 
     public ArticleEntity() {
     }
 
     public ArticleEntity(Long articleId, String title, String content, LocalDateTime createdAt, int viewCount,
-            UserEntity author) {
+            AuthEntity author) {
         this.articleId = articleId;
         this.title = title;
         this.content = content;
@@ -89,23 +89,19 @@ public class ArticleEntity {
         this.viewCount = viewCount;
     }
 
-    public UserEntity getAuthor() {
+    public AuthEntity getAuthor() {
         return author;
     }
 
-    public void setAuthor(UserEntity author) {
+    public void setAuthor(AuthEntity author) {
         this.author = author;
     }
 
-    public List<FileEntity> getFiles() {
-        return files;
-    }
-
-    public void setFiles(List<FileEntity> files) {
-        this.files = files;
-    }
-
     public boolean isHasFile() {
-        return !files.isEmpty();
+        return hasFile;
+    }
+
+    public void setHasFile(boolean hasFile) {
+        this.hasFile = hasFile;
     }
 }
