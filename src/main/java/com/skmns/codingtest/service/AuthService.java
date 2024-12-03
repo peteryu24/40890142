@@ -20,6 +20,10 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public boolean isUsernameAvailable(String username) {
+        return !authRepository.findByUsername(username).isPresent();
+    }
+
     public AuthVO registerUser(String username, String password) {
         if (password == null || password.isEmpty()) {
             throw new IllegalArgumentException("비밀번호는 null일 수 없습니다.");

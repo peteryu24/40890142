@@ -4,6 +4,7 @@ public class AuthDTO {
     private Long userId;
     private String username;
     private String password;
+    private Boolean isUsernameAvailable;
 
     public AuthDTO() {
     }
@@ -24,5 +25,13 @@ public class AuthDTO {
 
     public String getPassword() {
         return password;
+    }
+
+    public Boolean getIsUsernameAvailable() {
+        return isUsernameAvailable;
+    }
+
+    public void setIsUsernameAvailable(Boolean isUsernameAvailable) {
+        this.isUsernameAvailable = isUsernameAvailable;
     }
 }

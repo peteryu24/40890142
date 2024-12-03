@@ -4,9 +4,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    private final AuthInterceptorConfig authInterceptorConfig;
+
+    public WebConfig(AuthInterceptorConfig authInterceptorConfig) {
+        this.authInterceptorConfig = authInterceptorConfig;
+    }
 
     /**
      * CORS 설정
@@ -28,5 +35,15 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:/uploads/")
                 .setCachePeriod(3600);
+    }
+
+    /**
+     * 인터셉터 등록
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authInterceptorConfig)
+                .addPathPatterns("/articles/**", "/files/**") // 인증 필요
+                .excludePathPatterns("/auth/login", "/auth/register"); // 인증 제외
     }
 }
