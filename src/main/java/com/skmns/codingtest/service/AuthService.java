@@ -4,6 +4,8 @@ import com.skmns.codingtest.entity.AuthEntity;
 import com.skmns.codingtest.repository.AuthRepository;
 import com.skmns.codingtest.vo.AuthVO;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -44,5 +46,14 @@ public class AuthService {
         }
 
         return new AuthVO(user.getUserId(), user.getUsername());
+    }
+
+    public boolean isOwner(HttpSession session, Long resourceOwnerId) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            throw new SecurityException("로그인이 필요합니다.");
+        }
+
+        return userId.equals(resourceOwnerId);
     }
 }
