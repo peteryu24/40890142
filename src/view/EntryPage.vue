@@ -73,8 +73,21 @@ export default {
       }
     },
     async handleSignUp() {
+      // 비밀번호와 비밀번호 확인이 다를 경우
+      if (this.signUpData.password !== this.signUpData.passwordCheck) {
+        alert("비밀번호가 일치하지 않습니다. 다시 입력해주세요.");
+
+        // 비밀번호 필드 초기화
+        this.signUpData.password = "";
+        this.signUpData.passwordCheck = "";
+        return;
+      }
+
+      // 아이디 중복 확인 여부 체크
       if (!this.signUpData.isUsernameAvailable) {
         alert("아이디 중복 확인을 먼저 해주세요.");
+
+        // 비밀번호 필드 초기화
         this.signUpData.password = "";
         this.signUpData.passwordCheck = "";
         this.usernameAvailabilityMessage = "";
@@ -89,6 +102,10 @@ export default {
       } catch (error) {
         console.error("회원가입 실패:", error);
         alert("회원가입 실패! 다시 시도하세요.");
+
+        // 비밀번호 필드 초기화
+        this.signUpData.password = "";
+        this.signUpData.passwordCheck = "";
       }
     },
     async checkUsernameAvailability() {
