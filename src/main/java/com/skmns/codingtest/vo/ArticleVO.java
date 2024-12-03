@@ -1,7 +1,6 @@
 package com.skmns.codingtest.vo;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class ArticleVO {
     private Long articleId;
@@ -10,7 +9,11 @@ public class ArticleVO {
     private LocalDateTime createdAt;
     private int viewCount;
     private String authorUsername;
-    private boolean hasFile; // 파일 유무만
+    private boolean hasFile;
+
+    // 새롭게 추가된 필드
+    private String sortOrder; // 정렬 순서 (asc/desc)
+    private String searchQuery; // 검색어
 
     public ArticleVO(Long articleId, String title, String content, LocalDateTime createdAt, int viewCount,
             String authorUsername, boolean hasFile) {
@@ -21,6 +24,19 @@ public class ArticleVO {
         this.viewCount = viewCount;
         this.authorUsername = authorUsername;
         this.hasFile = hasFile;
+    }
+
+    public ArticleVO(Long articleId, String title, String content, LocalDateTime createdAt, int viewCount,
+            String authorUsername, boolean hasFile, String sortOrder, String searchQuery) {
+        this.articleId = articleId;
+        this.title = title;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.viewCount = viewCount;
+        this.authorUsername = authorUsername;
+        this.hasFile = hasFile;
+        this.sortOrder = sortOrder;
+        this.searchQuery = searchQuery;
     }
 
     public Long getArticleId() {
@@ -77,5 +93,21 @@ public class ArticleVO {
 
     public void setHasFile(boolean hasFile) {
         this.hasFile = hasFile;
+    }
+
+    public String getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(String sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+
+    public String getSearchQuery() {
+        return searchQuery;
+    }
+
+    public void setSearchQuery(String searchQuery) {
+        this.searchQuery = searchQuery;
     }
 }

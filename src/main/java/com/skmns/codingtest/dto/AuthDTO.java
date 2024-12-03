@@ -4,7 +4,7 @@ public class AuthDTO {
     private Long userId;
     private String username;
     private String password;
-    private Boolean isUsernameAvailable;
+    private Boolean isUsernameAvailable = false;
 
     public AuthDTO() {
     }

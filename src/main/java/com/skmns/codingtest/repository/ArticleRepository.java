@@ -10,4 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
     Page<ArticleEntity> findAll(Pageable pageable);
+
+    Page<ArticleEntity> findByTitleContainingOrAuthorUsernameContaining(String title, String authorUsername,
+            Pageable pageable);
 }

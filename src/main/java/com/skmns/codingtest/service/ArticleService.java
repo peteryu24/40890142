@@ -8,12 +8,15 @@ import com.skmns.codingtest.util.ArticleConverterUtil;
 import com.skmns.codingtest.vo.ArticleVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ArticleService {
@@ -33,15 +36,25 @@ public class ArticleService {
                 return ArticleConverterUtil.toVO(article);
         }
 
-        public PaginationUtil<ArticleVO> getPaginatedArticles(int page, int size) {
-                PageRequest pageRequest = PageRequest.of(page, size);
-                Page<ArticleEntity> articlePage = articleRepository.findAll(pageRequest);
+        public PaginationUtil<ArticleVO> getPaginatedArticles(int page, int size, String sortOrder,
+                        String searchQuery) {
+                Sort sort = Sort.by(sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, "createdAt");
 
-                List<ArticleVO> articles = articlePage.getContent().stream()
+                Pageable pageable = PageRequest.of(page, size, sort);
+
+                Page<ArticleEntity> articlePage;
+                if (searchQuery != null && !searchQuery.isBlank()) {
+                        articlePage = articleRepository.findByTitleContainingOrAuthorUsernameContaining(searchQuery,
+                                        searchQuery, pageable);
+                } else {
+                        articlePage = articleRepository.findAll(pageable);
+                }
+
+                List<ArticleVO> articleVOs = articlePage.stream()
                                 .map(ArticleConverterUtil::toVO)
-                                .toList();
+                                .collect(Collectors.toList());
 
-                return new PaginationUtil<>(articles, articlePage.getTotalPages(), articlePage.getNumber(),
+                return new PaginationUtil<>(articleVOs, articlePage.getTotalPages(), page,
                                 articlePage.getTotalElements());
         }
 
@@ -51,7 +64,7 @@ public class ArticleService {
                                 null,
                                 articleVO.getTitle(),
                                 articleVO.getContent(),
-                                null, // @CreationTimestamp
+                                null,
                                 0,
                                 user);
 

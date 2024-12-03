@@ -6,7 +6,13 @@ import com.skmns.codingtest.util.SkmnsResult;
 import com.skmns.codingtest.vo.AuthVO;
 
 import jakarta.servlet.http.HttpSession;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -83,9 +89,14 @@ public class AuthController {
      */
     @PostMapping("/login")
     public SkmnsResult<AuthDTO> login(@RequestBody AuthDTO authDTO, HttpSession session) {
-
         AuthVO authenticatedUser = authService.authenticate(authDTO.getUsername(), authDTO.getPassword());
 
+        // SecurityContext에 인증 정보 설정
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                authenticatedUser, null, List.of()); // 권한 추가 가능
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // 세션에 사용자 정보 저장
         session.setAttribute("userId", authenticatedUser.getUserId());
         session.setAttribute("username", authenticatedUser.getUsername());
 
@@ -108,4 +119,14 @@ public class AuthController {
         session.invalidate();
         return new SkmnsResult<>("로그아웃 성공", HttpStatus.OK.value(), null);
     }
+
+    @GetMapping("/session-check")
+    public ResponseEntity<?> checkSession(HttpSession session) {
+        Object userId = session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("세션이 존재하지 않습니다.");
+        }
+        return ResponseEntity.ok("세션 유지 중, 사용자 ID: " + userId);
+    }
+
 }

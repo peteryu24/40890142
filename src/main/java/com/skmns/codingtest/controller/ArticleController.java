@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -68,9 +69,12 @@ public class ArticleController {
         @GetMapping
         public SkmnsResult<PaginationUtil<ArticleDTO>> getPaginatedArticles(
                         @RequestParam(defaultValue = "0") int page,
-                        @RequestParam(defaultValue = "10") int size) {
+                        @RequestParam(defaultValue = "10") int size,
+                        @RequestParam(defaultValue = "desc") String sortOrder,
+                        @RequestParam(required = false) String searchQuery) {
 
-                PaginationUtil<ArticleVO> articleVOs = articleService.getPaginatedArticles(page, size);
+                PaginationUtil<ArticleVO> articleVOs = articleService.getPaginatedArticles(page, size, sortOrder,
+                                searchQuery);
 
                 List<ArticleDTO> articleDTOs = articleVOs.getContent().stream()
                                 .map(ArticleConverterUtil::toDTO)
@@ -100,15 +104,22 @@ public class ArticleController {
          */
         @PostMapping(consumes = { "multipart/form-data" })
         public SkmnsResult<Void> createArticle(
-                        @RequestBody ArticleDTO articleDTO,
-                        @RequestBody FileDTO fileDTO,
+                        @RequestParam("title") String title,
+                        @RequestParam("content") String content,
+                        @RequestPart(value = "files", required = false) List<MultipartFile> files,
                         @AuthenticationPrincipal AuthEntity user) throws IOException {
 
-                ArticleVO articleVO = new ArticleVO(null, articleDTO.getTitle(), articleDTO.getContent(), null, 0,
+                ArticleVO articleVO = new ArticleVO(
+                                null,
+                                title,
+                                content,
+                                null, // createdAt은 null로 설정
+                                0, // 초기 조회수는 0
                                 user.getUsername(),
-                                fileDTO.getFiles() != null && !fileDTO.getFiles().isEmpty());
+                                files != null && !files.isEmpty() // 첨부파일 여부
+                );
 
-                articleService.createArticle(articleVO, user, fileDTO.getFiles());
+                articleService.createArticle(articleVO, user, files);
 
                 return new SkmnsResult<>("게시물이 작성되었습니다.", HttpStatus.CREATED.value());
         }
@@ -130,15 +141,21 @@ public class ArticleController {
         @PutMapping("/{id}")
         public SkmnsResult<Void> updateArticle(
                         @PathVariable Long id,
-                        @RequestBody ArticleDTO articleDTO,
-                        @RequestBody FileDTO fileDTO,
+                        @RequestParam("title") String title,
+                        @RequestParam("content") String content,
+                        @RequestPart(value = "files", required = false) List<MultipartFile> files,
+                        @RequestParam(value = "deleteFileIds", required = false) List<Long> deleteFileIds, // Add
+                                                                                                           // deleteFileIds
                         @AuthenticationPrincipal AuthEntity user) throws IOException {
 
-                ArticleVO articleVO = new ArticleVO(id, articleDTO.getTitle(), articleDTO.getContent(), null, 0,
-                                user.getUsername(),
-                                fileDTO.getFiles() != null && !fileDTO.getFiles().isEmpty());
+                ArticleVO articleVO = new ArticleVO(id, title, content, null, 0, user.getUsername(),
+                                files != null && !files.isEmpty());
 
-                articleService.updateArticle(articleVO, user, fileDTO.getFiles(), null);
+                if (deleteFileIds == null) {
+                        deleteFileIds = new ArrayList<>();
+                }
+
+                articleService.updateArticle(articleVO, user, files, deleteFileIds);
 
                 return new SkmnsResult<>("게시물이 수정되었습니다.", HttpStatus.OK.value());
         }
