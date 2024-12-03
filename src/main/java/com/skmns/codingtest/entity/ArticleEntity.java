@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "articles")
@@ -24,27 +26,26 @@ public class ArticleEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "view_count", nullable = false)
-    private int viewCount;
-
-    @Column(name = "has_file", nullable = false)
-    private boolean hasFile;
+    @Column(name = "view_count", nullable = false, columnDefinition = "int default 0")
+    private int viewCount = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity author;
 
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FileEntity> files = new ArrayList<>();
+
     public ArticleEntity() {
     }
 
     public ArticleEntity(Long articleId, String title, String content, LocalDateTime createdAt, int viewCount,
-            boolean hasFile, UserEntity author) {
+            UserEntity author) {
         this.articleId = articleId;
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
         this.viewCount = viewCount;
-        this.hasFile = hasFile;
         this.author = author;
     }
 
@@ -88,19 +89,23 @@ public class ArticleEntity {
         this.viewCount = viewCount;
     }
 
-    public boolean isHasFile() {
-        return hasFile;
-    }
-
-    public void setHasFile(boolean hasFile) {
-        this.hasFile = hasFile;
-    }
-
     public UserEntity getAuthor() {
         return author;
     }
 
     public void setAuthor(UserEntity author) {
         this.author = author;
+    }
+
+    public List<FileEntity> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<FileEntity> files) {
+        this.files = files;
+    }
+
+    public boolean isHasFile() {
+        return !files.isEmpty();
     }
 }

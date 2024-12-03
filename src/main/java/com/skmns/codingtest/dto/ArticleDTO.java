@@ -9,7 +9,7 @@ public class ArticleDTO {
     private LocalDateTime createdAt;
     private int viewCount;
     private boolean hasFile;
-    private String authorUsername; // 작성자 추가
+    private String authorUsername;
 
     public ArticleDTO(Long articleId, String title, String content, LocalDateTime createdAt, int viewCount,
             boolean hasFile, String authorUsername) {
@@ -22,60 +22,33 @@ public class ArticleDTO {
         this.authorUsername = authorUsername;
     }
 
-    // Getter & Setter
+    // setter의 사용 X :: 데이터 불변성 보장
+
     public Long getArticleId() {
         return articleId;
-    }
-
-    public void setArticleId(Long articleId) {
-        this.articleId = articleId;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getContent() {
         return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public int getViewCount() {
         return viewCount;
-    }
-
-    public void setViewCount(int viewCount) {
-        this.viewCount = viewCount;
     }
 
     public boolean isHasFile() {
         return hasFile;
     }
 
-    public void setHasFile(boolean hasFile) {
-        this.hasFile = hasFile;
-    }
-
     public String getAuthorUsername() {
         return authorUsername;
-    }
-
-    public void setAuthorUsername(String authorUsername) {
-        this.authorUsername = authorUsername;
     }
 }

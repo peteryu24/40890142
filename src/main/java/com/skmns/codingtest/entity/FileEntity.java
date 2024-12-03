@@ -17,38 +17,63 @@ public class FileEntity {
     @Column(name = "file_url", nullable = false)
     private String fileUrl;
 
-    @Column(name = "article_id", nullable = false)
-    private Long articleId;
+    @Column(name = "file_size", nullable = true)
+    private Long fileSize;
 
-    public Long getFileId() {
-        return fileId;
-    }
+    @Column(name = "file_type", nullable = true)
+    private String fileType;
 
-    public void setFileId(Long fileId) {
-        this.fileId = fileId;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_id", nullable = false)
+    private ArticleEntity article;
 
+    // Getters
     public String getFileName() {
         return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
     }
 
     public String getFileUrl() {
         return fileUrl;
     }
 
+    public Long getFileId() {
+        return fileId;
+    }
+
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public ArticleEntity getArticle() {
+        return article;
+    }
+
+    // Setters
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     public void setFileUrl(String fileUrl) {
         this.fileUrl = fileUrl;
     }
 
-    public Long getArticleId() {
-        return articleId;
+    public void setFileId(Long fileId) {
+        this.fileId = fileId;
     }
 
-    public void setArticleId(Long articleId) {
-        this.articleId = articleId;
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
+
+    public void setArticle(ArticleEntity article) {
+        this.article = article;
     }
 }

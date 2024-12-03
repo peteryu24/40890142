@@ -1,6 +1,7 @@
 package com.skmns.codingtest.vo;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ArticleVO {
     private Long articleId;
@@ -9,9 +10,10 @@ public class ArticleVO {
     private LocalDateTime createdAt;
     private int viewCount;
     private String authorUsername;
-    private boolean hasFile;
+    private boolean hasFile; // 파일 유무만
 
-    public ArticleVO(Long articleId, String title, String content, LocalDateTime createdAt, int viewCount, String authorUsername, boolean hasFile) {
+    public ArticleVO(Long articleId, String title, String content, LocalDateTime createdAt, int viewCount,
+            String authorUsername, boolean hasFile) {
         this.articleId = articleId;
         this.title = title;
         this.content = content;
@@ -72,7 +74,7 @@ public class ArticleVO {
     public boolean isHasFile() {
         return hasFile;
     }
-    
+
     public void setHasFile(boolean hasFile) {
         this.hasFile = hasFile;
     }
