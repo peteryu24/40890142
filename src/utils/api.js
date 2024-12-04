@@ -3,9 +3,6 @@ import axios from "axios";
 // 기본 Axios 인스턴스
 const api = axios.create({
   baseURL: "http://localhost:8080", // 기본 서버 주소
-  headers: {
-    "Content-Type": "application/json",
-  },
   withCredentials: true, // CORS에서 쿠키 허용
 });
 
@@ -30,9 +27,23 @@ export const articleApi = {
       }, // URL 파라미터 추가
     }),
 
-  getArticleById: (id) => api.get(`/articles/${id}`),
-  createArticle: (data) => api.post("/articles", data),
+  // 게시글 상세 정보 가져오기
+  async getArticle(articleId) {
+    return api.get(`/articles/${articleId}`); // Use 'api' instance directly
+  },
+
+  // 조회수 증가 API 호출
+  async increaseViewCount(articleId) {
+    return api.post(`/articles/${articleId}/view`); // Use 'api' instance directly
+  },
+
+  // 게시글 작성
+  createArticle: (formData) => api.post("/articles", formData), // No need to set content-type here
+
+  // 게시글 수정
   updateArticle: (id, data) => api.put(`/articles/${id}`, data),
+
+  // 게시글 삭제
   deleteArticle: (id) => api.delete(`/articles/${id}`),
 };
 
@@ -41,7 +52,7 @@ export const fileApi = {
   uploadFile: async (file) => {
     try {
       const response = await api.post("/files/upload", file, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { "Content-Type": "multipart/form-data" }, // Only for file uploads
       });
       return response.data;
     } catch (error) {

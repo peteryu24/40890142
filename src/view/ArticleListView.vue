@@ -1,7 +1,11 @@
 <template>
   <div class="wrapper">
     <div class="container">
+      <!-- 로고 -->
       <img src="@/assets/logo.png" alt="logo" class="logo" />
+      <!-- 글쓰기 버튼 -->
+      <button class="write-btn" @click="navigateToWrite">글쓰기</button>
+
       <h1>게시글 목록</h1>
       <div class="controls">
         <!-- 정렬 -->
@@ -96,6 +100,9 @@ export default {
       this.currentPage = page;
       this.fetchArticles();
     },
+    navigateToWrite() {
+      this.$router.push({ name: "ArticleWriteView" });
+    },
   },
   async mounted() {
     this.fetchArticles();
@@ -144,6 +151,24 @@ body {
   left: 20px;
   width: 80px;
   height: auto;
+}
+
+.write-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #ff4b2b;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.write-btn:hover {
+  background-color: #ff6b3f;
 }
 
 .controls {
