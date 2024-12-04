@@ -19,4 +19,15 @@ const router = new VueRouter({
   routes,
 });
 
+router.beforeEach((to, from, next) => {
+  const authToken = localStorage.getItem("authToken"); // 세션 체크
+
+  // 로그인 페이지로 가는 경로는 예외 처리
+  if (to.name !== "EntryPage" && !authToken) {
+    next({ name: "EntryPage" }); // 로그인 안 된 상태에서 다른 페이지 접근 시 EntryPage로 리디렉션
+  } else {
+    next(); // 정상적인 페이지 접근
+  }
+});
+
 export default router;

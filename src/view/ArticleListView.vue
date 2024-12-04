@@ -52,6 +52,9 @@
         <button :disabled="currentPage === totalPages - 1" @click="fetchArticles(currentPage + 1)">다음</button>
       </div>
     </div>
+
+    <!-- 로그아웃 버튼 -->
+    <button class="logout-btn" @click="logout">로그아웃</button>
   </div>
 </template>
 
@@ -98,6 +101,12 @@ export default {
     },
     navigateToWrite() {
       this.$router.push({ name: "ArticleWriteView" });
+    },
+    logout() {
+      localStorage.removeItem("authToken");
+
+      // Entrypage로 리디렉션
+      this.$router.push({ name: "EntryPage" });
     },
   },
   async mounted() {
@@ -228,5 +237,24 @@ td {
 
 th {
   background-color: #f4f4f4;
+}
+
+/* 로그아웃 버튼 스타일 */
+.logout-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  background-color: #ff4b2b;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: -5px -5px 10px #ff6b3f, 5px 5px 8px #bf4b2b;
+}
+
+.logout-btn:hover {
+  background-color: #ff6b3f;
 }
 </style>

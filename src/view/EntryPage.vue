@@ -4,7 +4,7 @@
       <!-- 회원가입 화면 -->
       <div class="sign-up-container">
         <form @submit.prevent="handleSignUp">
-          <h1>Register</h1>
+          <h1>회원가입</h1>
           <input v-model="signUpData.username" type="text" placeholder="ID" required />
           <button type="button" @click="checkUsernameAvailability" class="form_btn">중복 확인</button>
           <input v-model="signUpData.password" type="password" placeholder="Password" required />
@@ -17,7 +17,7 @@
       <!-- 로그인 화면 -->
       <div class="sign-in-container">
         <form @submit.prevent="handleSignIn">
-          <h1>Welcome</h1>
+          <h1>로그인</h1>
           <input v-model="signInData.username" type="text" placeholder="ID" required />
           <input v-model="signInData.password" type="password" placeholder="Password" required />
           <button class="form_btn" type="submit">로그인</button>
@@ -59,57 +59,48 @@ export default {
     };
   },
   methods: {
+    // 로그인 처리
     async handleSignIn() {
       try {
-        const response = await authApi.login(this.signInData);
+        const response = await authApi.login(this.signInData); // 서버로 로그인 정보 전송
         console.log("로그인 성공:", response.data);
+
+        // 로그인 성공 시 토큰을 localStorage에 저장
+        localStorage.setItem("authToken", response.data.token);
+
         alert("로그인 성공!");
-        // 로그인 성공 시 게시판으로 이동
-        this.$router.push({ name: "ArticleListView" });
+        this.$router.push({ name: "ArticleListView" }); // 로그인 후 게시판으로 이동
       } catch (error) {
         console.error("로그인 실패:", error);
         alert("로그인 실패! 아이디와 비밀번호를 확인하세요.");
-
-        this.signInData.username = "";
-        this.signInData.password = "";
       }
     },
+    // 회원가입 처리
     async handleSignUp() {
-      // 비밀번호와 비밀번호 확인이 다를 경우
+      // 비밀번호와 비밀번호 확인이 일치하는지 확인
       if (this.signUpData.password !== this.signUpData.passwordCheck) {
-        alert("비밀번호가 일치하지 않습니다. 다시 입력해주세요.");
-
-        // 비밀번호 필드 초기화
-        this.signUpData.password = "";
-        this.signUpData.passwordCheck = "";
+        alert("비밀번호가 일치하지 않습니다.");
         return;
       }
 
-      // 아이디 중복 확인 여부 체크
+      // 아이디 중복 확인을 먼저 해야함
       if (!this.signUpData.isUsernameAvailable) {
         alert("아이디 중복 확인을 먼저 해주세요.");
-
-        // 비밀번호 필드 초기화
-        this.signUpData.password = "";
-        this.signUpData.passwordCheck = "";
-        this.usernameAvailabilityMessage = "";
         return;
       }
 
       try {
-        const response = await authApi.register(this.signUpData);
+        const response = await authApi.register(this.signUpData); // 서버로 회원가입 요청
         console.log("회원가입 성공:", response.data);
         alert("회원가입 성공!");
-        this.togglePanel();
+        this.togglePanel(); // 회원가입 후 로그인 화면으로 이동
       } catch (error) {
         console.error("회원가입 실패:", error);
         alert("회원가입 실패! 다시 시도하세요.");
-
-        // 비밀번호 필드 초기화
-        this.signUpData.password = "";
-        this.signUpData.passwordCheck = "";
       }
     },
+
+    // 아이디 중복 확인
     async checkUsernameAvailability() {
       if (!this.signUpData.username) {
         this.usernameAvailabilityMessage = "아이디를 입력해주세요.";
@@ -132,6 +123,8 @@ export default {
         this.usernameAvailabilityMessage = "중복 확인 중 문제가 발생했습니다.";
       }
     },
+
+    // 패널 토글
     togglePanel() {
       this.isPanelActive = !this.isPanelActive;
 

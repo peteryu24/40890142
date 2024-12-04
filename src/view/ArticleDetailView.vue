@@ -22,7 +22,15 @@
 
       <!-- 첨부파일 여부 -->
       <div v-if="article.hasFile" class="file-info">
-        <p><strong>첨부파일:</strong> 파일이 첨부되었습니다.</p>
+        <p>
+          <strong>첨부파일:</strong>
+          <!-- 언더스코어 이후의 부분만 표시 -->
+          {{
+            article.fileNames && article.fileNames.length > 0
+              ? article.fileNames.map((fileName) => fileName.split("_").slice(1).join("_").trim()).join(", ")
+              : "파일이 첨부되지 않았습니다."
+          }}
+        </p>
       </div>
     </div>
   </div>
@@ -65,7 +73,6 @@ export default {
         alert("게시글을 가져오는 데 실패했습니다. 다시 시도해주세요.");
       }
     },
-
     // 조회수 증가 API 호출
     async increaseViewCount(articleId) {
       try {
