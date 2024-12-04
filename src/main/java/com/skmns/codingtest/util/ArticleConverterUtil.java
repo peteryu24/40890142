@@ -15,7 +15,8 @@ public class ArticleConverterUtil {
                 articleVO.getCreatedAt(),
                 articleVO.getViewCount(),
                 articleVO.isHasFile(),
-                articleVO.getAuthorUsername());
+                articleVO.getAuthorUsername(),
+                articleVO.getFileNames());
     }
 
     // Entity -> VO 변환

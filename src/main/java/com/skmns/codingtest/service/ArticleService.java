@@ -4,10 +4,10 @@ import com.skmns.codingtest.entity.ArticleEntity;
 import com.skmns.codingtest.entity.AuthEntity;
 import com.skmns.codingtest.entity.FileEntity;
 import com.skmns.codingtest.repository.ArticleRepository;
+import com.skmns.codingtest.repository.FileRepository;
 import com.skmns.codingtest.util.PaginationUtil;
 import com.skmns.codingtest.util.ArticleConverterUtil;
 import com.skmns.codingtest.vo.ArticleVO;
-import com.skmns.codingtest.vo.FileVO;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,23 +25,32 @@ import java.util.stream.Collectors;
 public class ArticleService {
 
         private final ArticleRepository articleRepository;
+        private final FileRepository fileRepository;
         private final FileService fileService;
 
-        public ArticleService(ArticleRepository articleRepository, FileService fileService) {
+        public ArticleService(ArticleRepository articleRepository, FileService fileService,
+                        FileRepository fileRepository) {
                 this.articleRepository = articleRepository;
                 this.fileService = fileService;
+                this.fileRepository = fileRepository;
         }
 
         public ArticleVO getArticleDetails(Long articleId) {
+                // 게시글을 데이터베이스에서 가져옴
                 ArticleEntity article = articleRepository.findById(articleId)
                                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
-                // Use fileService to get FileVO objects for the article
-                List<FileVO> fileVOs = fileService.getFilesByArticleId(articleId);
+                // 파일 엔티티 목록을 가져와서 파일 이름만 추출
+                List<FileEntity> fileEntities = fileRepository.findByArticle_ArticleId(articleId);
+                List<String> fileNames = fileEntities.stream()
+                                .map(FileEntity::getFileName) // FileEntity에서 fileName만 추출
+                                .collect(Collectors.toList());
 
-                // Convert ArticleEntity to ArticleVO
+                // ArticleEntity를 ArticleVO로 변환
                 ArticleVO articleVO = ArticleConverterUtil.toVO(article);
-                articleVO.setFiles(fileVOs); // Set the list of FileVO objects to ArticleVO
+
+                // 파일 이름을 ArticleVO에 설정
+                articleVO.setFileNames(fileNames);
 
                 return articleVO;
         }

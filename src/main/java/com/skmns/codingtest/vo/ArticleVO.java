@@ -2,6 +2,7 @@ package com.skmns.codingtest.vo;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ArticleVO {
     private Long articleId;
@@ -12,6 +13,7 @@ public class ArticleVO {
     private String authorUsername;
     private boolean hasFile;
     private List<FileVO> files;
+    private List<String> fileNames;
     private String sortOrder;
     private String searchQuery;
 
@@ -45,6 +47,14 @@ public class ArticleVO {
 
     public void setFiles(List<FileVO> files) {
         this.files = files;
+    }
+
+    public List<String> getFileNames() {
+        return fileNames;
+    }
+
+    public void setFileNames(List<String> fileNames) {
+        this.fileNames = fileNames;
     }
 
     public Long getArticleId() {
