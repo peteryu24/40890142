@@ -1,18 +1,13 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" class="logo" />
-    <EntryPage msg="Welcome to Your Vue.js App" />
+    <router-view />
+    <!-- 라우터를 통해 페이지 동적 렌더링 -->
   </div>
 </template>
 
 <script>
-import EntryPage from "./view/EntryPage.vue";
-
 export default {
   name: "App",
-  components: {
-    EntryPage,
-  },
 };
 </script>
 

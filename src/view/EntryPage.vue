@@ -64,6 +64,8 @@ export default {
         const response = await authApi.login(this.signInData);
         console.log("로그인 성공:", response.data);
         alert("로그인 성공!");
+        // 로그인 성공 시 게시판으로 이동
+        this.$router.push({ name: "ArticleListView" });
       } catch (error) {
         console.error("로그인 실패:", error);
         alert("로그인 실패! 아이디와 비밀번호를 확인하세요.");
