@@ -2,10 +2,13 @@ package com.skmns.codingtest.service;
 
 import com.skmns.codingtest.entity.ArticleEntity;
 import com.skmns.codingtest.entity.AuthEntity;
+import com.skmns.codingtest.entity.FileEntity;
 import com.skmns.codingtest.repository.ArticleRepository;
 import com.skmns.codingtest.util.PaginationUtil;
 import com.skmns.codingtest.util.ArticleConverterUtil;
 import com.skmns.codingtest.vo.ArticleVO;
+import com.skmns.codingtest.vo.FileVO;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,9 +34,16 @@ public class ArticleService {
 
         public ArticleVO getArticleDetails(Long articleId) {
                 ArticleEntity article = articleRepository.findById(articleId)
-                                .orElseThrow(() -> new IllegalArgumentException("Article not found"));
+                                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
-                return ArticleConverterUtil.toVO(article);
+                // Use fileService to get FileVO objects for the article
+                List<FileVO> fileVOs = fileService.getFilesByArticleId(articleId);
+
+                // Convert ArticleEntity to ArticleVO
+                ArticleVO articleVO = ArticleConverterUtil.toVO(article);
+                articleVO.setFiles(fileVOs); // Set the list of FileVO objects to ArticleVO
+
+                return articleVO;
         }
 
         public PaginationUtil<ArticleVO> getPaginatedArticles(int page, int size, String sortOrder,

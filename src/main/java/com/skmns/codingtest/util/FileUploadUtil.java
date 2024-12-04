@@ -1,5 +1,6 @@
 package com.skmns.codingtest.util;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,12 +12,18 @@ import java.nio.file.Paths;
 @Component
 public class FileUploadUtil {
 
-    private static final String UPLOAD_DIR = "uploads/";
+    // @Value 어노테이션을 사용하여 file.upload-dir 값을 읽어옵니다.
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
+    /**
+     * 파일 저장
+     */
     public String saveFile(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
-        Path uploadPath = Paths.get(UPLOAD_DIR);
+        Path uploadPath = Paths.get(uploadDir);
 
+        // 업로드 디렉토리가 없으면 생성
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
@@ -27,6 +34,9 @@ public class FileUploadUtil {
         return filePath.toString();
     }
 
+    /**
+     * 파일 삭제
+     */
     public void deleteFile(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         if (Files.exists(path)) {
@@ -34,6 +44,9 @@ public class FileUploadUtil {
         }
     }
 
+    /**
+     * 파일 로드
+     */
     public byte[] loadFile(String filePath) throws IOException {
         Path path = Paths.get(filePath);
 

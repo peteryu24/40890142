@@ -30,3 +30,6 @@ spring:
 logging:
   level:
     "[com.skmns.codingtest]": DEBUG
+
+file:
+  upload-dir: C:/uploads

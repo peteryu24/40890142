@@ -1,6 +1,7 @@
 package com.skmns.codingtest.vo;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ArticleVO {
     private Long articleId;
@@ -10,10 +11,9 @@ public class ArticleVO {
     private int viewCount;
     private String authorUsername;
     private boolean hasFile;
-
-    // 새롭게 추가된 필드
-    private String sortOrder; // 정렬 순서 (asc/desc)
-    private String searchQuery; // 검색어
+    private List<FileVO> files;
+    private String sortOrder;
+    private String searchQuery;
 
     public ArticleVO(Long articleId, String title, String content, LocalDateTime createdAt, int viewCount,
             String authorUsername, boolean hasFile) {
@@ -37,6 +37,14 @@ public class ArticleVO {
         this.hasFile = hasFile;
         this.sortOrder = sortOrder;
         this.searchQuery = searchQuery;
+    }
+
+    public List<FileVO> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<FileVO> files) {
+        this.files = files;
     }
 
     public Long getArticleId() {

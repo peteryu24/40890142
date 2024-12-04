@@ -94,7 +94,7 @@ public class ArticleController {
         public SkmnsResult<Void> createArticle(
                         @RequestParam("title") String title,
                         @RequestParam("content") String content,
-                        @RequestPart(value = "files", required = false) List<MultipartFile> files,
+                        @RequestParam(value = "files", required = false) List<MultipartFile> files,
                         @AuthenticationPrincipal AuthEntity user) throws IOException {
 
                 // 인증된 사용자가 없으면 UNAUTHORIZED 반환
