@@ -10,14 +10,14 @@
       <div class="controls">
         <!-- 정렬 -->
         <label for="sortOrder">정렬:</label>
-        <select v-model="sortOrder" @change="fetchArticles">
+        <select v-model="sortOrder" @change="fetchArticles(0)">
           <option value="desc">최신순</option>
           <option value="asc">오래된순</option>
         </select>
 
         <!-- 검색 -->
-        <input v-model="searchQuery" @keyup.enter="fetchArticles" type="text" placeholder="검색어를 입력하세요" />
-        <button @click="fetchArticles">검색</button>
+        <input v-model="searchQuery" @keyup.enter="fetchArticles(0)" type="text" placeholder="검색어를 입력하세요" />
+        <button @click="fetchArticles(0)">검색</button>
       </div>
       <div v-if="articles.length === 0">
         <p>게시글이 없습니다. 새 글을 작성해보세요!</p>
@@ -47,9 +47,9 @@
         </tbody>
       </table>
       <div class="pagination" v-if="totalPages > 1">
-        <button :disabled="currentPage === 0" @click="changePage(currentPage - 1)">이전</button>
+        <button :disabled="currentPage === 0" @click="fetchArticles(currentPage - 1)">이전</button>
         <span>페이지 {{ currentPage + 1 }} / {{ totalPages }}</span>
-        <button :disabled="currentPage === totalPages - 1" @click="changePage(currentPage + 1)">다음</button>
+        <button :disabled="currentPage === totalPages - 1" @click="fetchArticles(currentPage + 1)">다음</button>
       </div>
     </div>
   </div>
@@ -70,9 +70,17 @@ export default {
     };
   },
   methods: {
-    async fetchArticles() {
+    async fetchArticles(page) {
+      // 페이지 업데이트
+      this.currentPage = page;
+
       try {
-        const response = await articleApi.getArticles(this.currentPage, this.pageSize, this.sortOrder, this.searchQuery);
+        const response = await articleApi.getArticles(
+          this.currentPage, // 현재 페이지
+          this.pageSize,
+          this.sortOrder,
+          this.searchQuery // 검색어 유지
+        );
         const result = response.data.data;
         if (result && result.content) {
           this.articles = result.content;
@@ -88,24 +96,12 @@ export default {
         this.totalPages = 0;
       }
     },
-    changeSortOrder(order) {
-      this.sortOrder = order;
-      this.fetchArticles();
-    },
-    searchArticles(query) {
-      this.searchQuery = query;
-      this.fetchArticles();
-    },
-    changePage(page) {
-      this.currentPage = page;
-      this.fetchArticles();
-    },
     navigateToWrite() {
       this.$router.push({ name: "ArticleWriteView" });
     },
   },
   async mounted() {
-    this.fetchArticles();
+    this.fetchArticles(0);
   },
 };
 </script>
