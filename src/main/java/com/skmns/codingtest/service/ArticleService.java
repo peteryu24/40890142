@@ -97,28 +97,13 @@ public class ArticleService {
         @Transactional
         public void updateArticle(
                         ArticleVO articleVO,
-                        AuthEntity user,
-                        List<MultipartFile> newFiles,
-                        List<Long> deleteFileIds) throws IOException {
+                        AuthEntity user) throws IOException {
 
+                // 게시글 찾기
                 ArticleEntity article = articleRepository.findById(articleVO.getArticleId())
                                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
-                if (!article.getAuthor().getUserId().equals(user.getUserId())) {
-                        throw new SecurityException("작성자만 게시글을 수정할 수 있습니다.");
-                }
-
-                article.setTitle(articleVO.getTitle());
-                article.setContent(articleVO.getContent());
-
-                if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
-                        fileService.deleteFilesByIds(deleteFileIds);
-                }
-
-                if (newFiles != null && !newFiles.isEmpty()) {
-                        fileService.attachFilesToArticle(newFiles, article);
-                }
-
+                article.setContent(articleVO.getContent()); 
                 articleRepository.save(article);
         }
 

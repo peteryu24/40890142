@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,7 +27,7 @@ public class ArticleController {
 
         /**
          * ArticleController 생성자
-         * 
+         *
          * @param articleService 게시글 관련 서비스 클래스
          */
         public ArticleController(ArticleService articleService) {
@@ -37,13 +36,12 @@ public class ArticleController {
 
         /**
          * 특정 게시글의 상세 정보를 조회하는 API
-         * 
+         *
          * @param id 조회할 게시글의 ID
          * @return 게시글의 상세 정보
          */
         @GetMapping("/{id}")
         public SkmnsResult<ArticleDTO> getArticleDetails(@PathVariable Long id) {
-
                 ArticleVO articleVO = articleService.getArticleDetails(id);
                 ArticleDTO articleDTO = ArticleConverterUtil.toDTO(articleVO);
 
@@ -52,7 +50,7 @@ public class ArticleController {
 
         /**
          * 게시글 목록을 페이징 처리하여 조회하는 API
-         * 
+         *
          * @param page 페이지 번호 (기본값: 0)
          * @param size 페이지당 조회할 게시글 수 (기본값: 10)
          * @return 페이징된 게시글 목록
@@ -82,7 +80,7 @@ public class ArticleController {
 
         /**
          * 새로운 게시글을 작성하는 API
-         * 
+         *
          * @param title   제목
          * @param content 내용
          * @param files   첨부파일
@@ -122,7 +120,7 @@ public class ArticleController {
 
         /**
          * 게시글 조회수를 증가시키는 API
-         * 
+         *
          * @param articleId 조회수를 증가시킬 게시글의 ID
          * @return 조회수 증가 성공 메시지
          */
@@ -138,42 +136,48 @@ public class ArticleController {
 
         /**
          * 게시글을 수정하는 API
-         * 
-         * @param id            게시글 ID
-         * @param title         제목
-         * @param content       내용
-         * @param files         첨부파일
-         * @param deleteFileIds 삭제할 파일 ID들
-         * @param user          수정자 (로그인된 사용자)
+         *
+         * @param id      게시글 ID
+         * @param content 내용
+         * @param user    수정자 (로그인된 사용자)
          * @return 게시글 수정 성공 메시지
          * @throws IOException 파일 처리 중 오류 발생 시 예외
          */
         @PutMapping("/{id}")
         public SkmnsResult<Void> updateArticle(
                         @PathVariable Long id,
-                        @RequestParam("title") String title,
-                        @RequestParam("content") String content,
-                        @RequestPart(value = "files", required = false) List<MultipartFile> files,
-                        @RequestParam(value = "deleteFileIds", required = false) List<Long> deleteFileIds,
+                        @RequestParam("content") String content, // title 없이 content만 수정
                         @AuthenticationPrincipal AuthEntity user) throws IOException {
 
-                if (deleteFileIds == null) {
-                        deleteFileIds = new ArrayList<>();
+                // 인증된 사용자가 없으면 UNAUTHORIZED 반환
+                if (user == null) {
+                        return new SkmnsResult<>("로그인 상태가 아닙니다.", HttpStatus.UNAUTHORIZED.value());
                 }
 
-                ArticleVO articleVO = new ArticleVO(id, title, content, null, 0, user.getUsername(),
-                                files != null && !files.isEmpty());
+                // 게시글 수정
+                ArticleVO articleVO = new ArticleVO(
+                                id,
+                                null, // title은 수정하지 않음
+                                content, // content만 수정
+                                null, // createdAt remains unchanged
+                                0, // 조회수는 변경하지 않음
+                                user.getUsername(),
+                                false // 첨부파일 없음
+                );
 
-                articleService.updateArticle(articleVO, user, files, deleteFileIds);
+                // 게시글 수정 서비스 호출
+                articleService.updateArticle(articleVO, user);
 
+                // 성공 응답 반환
                 return new SkmnsResult<>("게시물이 수정되었습니다.", HttpStatus.OK.value());
         }
 
         /**
          * 게시글을 삭제하는 API
-         * 
+         *
          * @param id   게시글 ID
-         * @param user 삭제자 (로그인된 사용자)
+         * @param user 삭제자 (로그인
+         * 
          * @return 게시글 삭제 성공 메시지
          */
         @DeleteMapping("/{id}")

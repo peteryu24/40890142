@@ -35,23 +35,6 @@ public class FileController {
     }
 
     /**
-     * 파일 다운로드 API
-     * 
-     * <p>
-     * 주어진 파일 ID에 해당하는 파일을 다운로드하는 기능을 제공합니다.
-     * </p>
-     * 
-     * @param fileId 다운로드할 파일의 ID
-     * @return 다운로드된 파일의 데이터
-     */
-    @GetMapping("/{fileId}/download")
-    public SkmnsResult<byte[]> downloadFile(@PathVariable Long fileId) {
-
-        byte[] fileData = fileService.downloadFile(fileId).getBody();
-        return new SkmnsResult<>("파일 다운로드 성공", HttpStatus.OK.value(), fileData);
-    }
-
-    /**
      * 게시글에 파일을 추가하는 API
      * 
      * <p>
@@ -70,26 +53,5 @@ public class FileController {
 
         fileService.addFileToArticle(articleId, file);
         return new SkmnsResult<>("파일이 추가되었습니다.", HttpStatus.CREATED.value());
-    }
-
-    /**
-     * 파일을 수정하는 API
-     * 
-     * <p>
-     * 주어진 파일 ID에 해당하는 파일을 수정하는 기능을 제공합니다.
-     * </p>
-     * 
-     * @param fileId  수정할 파일의 ID
-     * @param newFile 새로운 파일 데이터
-     * @return 파일 수정 성공 메시지
-     * @throws IOException 파일 수정 중 오류 발생 시 예외
-     */
-    @PutMapping("/{fileId}")
-    public SkmnsResult<Void> updateFile(
-            @PathVariable Long fileId,
-            @RequestParam("file") MultipartFile newFile) throws IOException {
-
-        fileService.updateFile(fileId, newFile);
-        return new SkmnsResult<>("파일이 수정되었습니다.", HttpStatus.OK.value());
     }
 }

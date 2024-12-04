@@ -150,16 +150,6 @@ public class FileService {
         fileRepository.save(fileEntity);
     }
 
-    public ResponseEntity<byte[]> downloadFile(Long fileId) {
-        FileEntity fileEntity = fileRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다."));
-        byte[] fileData = loadFile(fileEntity.getFileUrl());
-
-        return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=\"" + fileEntity.getFileName() + "\"")
-                .body(fileData);
-    }
-
     private byte[] loadFile(String filePath) {
         try {
             Path path = Paths.get(filePath);
