@@ -1,7 +1,6 @@
 package com.skmns.codingtest.controller;
 
 import com.skmns.codingtest.dto.ArticleDTO;
-import com.skmns.codingtest.dto.FileDTO;
 import com.skmns.codingtest.entity.AuthEntity;
 import com.skmns.codingtest.service.ArticleService;
 import com.skmns.codingtest.util.ArticleConverterUtil;
@@ -39,10 +38,6 @@ public class ArticleController {
         /**
          * 특정 게시글의 상세 정보를 조회하는 API
          * 
-         * <p>
-         * 게시글의 ID를 입력받아 해당 게시글의 상세 정보를 반환합니다.
-         * </p>
-         * 
          * @param id 조회할 게시글의 ID
          * @return 게시글의 상세 정보
          */
@@ -57,10 +52,6 @@ public class ArticleController {
 
         /**
          * 게시글 목록을 페이징 처리하여 조회하는 API
-         * 
-         * <p>
-         * 페이지 번호와 페이지 크기를 받아, 해당 페이지의 게시글 목록을 반환합니다.
-         * </p>
          * 
          * @param page 페이지 번호 (기본값: 0)
          * @param size 페이지당 조회할 게시글 수 (기본값: 10)
@@ -92,13 +83,10 @@ public class ArticleController {
         /**
          * 새로운 게시글을 작성하는 API
          * 
-         * <p>
-         * 사용자가 제목, 내용 및 선택적으로 파일을 포함하여 새로운 게시글을 작성할 수 있도록 합니다.
-         * </p>
-         * 
-         * @param articleDTO 게시글 작성에 필요한 정보가 담긴 DTO 객체
-         * @param fileDTO    파일 관련 정보
-         * @param user       게시글 작성자 (로그인한 사용자)
+         * @param title   제목
+         * @param content 내용
+         * @param files   첨부파일
+         * @param user    작성자 (로그인된 사용자)
          * @return 게시글 작성 성공 메시지
          * @throws IOException 파일 업로드 중 오류 발생 시 예외
          */
@@ -109,32 +97,54 @@ public class ArticleController {
                         @RequestPart(value = "files", required = false) List<MultipartFile> files,
                         @AuthenticationPrincipal AuthEntity user) throws IOException {
 
+                // 인증된 사용자가 없으면 UNAUTHORIZED 반환
+                if (user == null) {
+                        return new SkmnsResult<>("로그인 상태가 아닙니다.", HttpStatus.UNAUTHORIZED.value());
+                }
+
+                // 게시글 작성
                 ArticleVO articleVO = new ArticleVO(
                                 null,
                                 title,
                                 content,
                                 null, // createdAt은 null로 설정
                                 0, // 초기 조회수는 0
-                                user.getUsername(),
+                                user.getUsername(), // 세션에서 추출한 username
                                 files != null && !files.isEmpty() // 첨부파일 여부
                 );
 
+                // 게시글 작성 서비스 호출
                 articleService.createArticle(articleVO, user, files);
 
+                // 성공 응답 반환
                 return new SkmnsResult<>("게시물이 작성되었습니다.", HttpStatus.CREATED.value());
+        }
+
+        /**
+         * 게시글 조회수를 증가시키는 API
+         * 
+         * @param articleId 조회수를 증가시킬 게시글의 ID
+         * @return 조회수 증가 성공 메시지
+         */
+        @PostMapping("/{articleId}/view")
+        public SkmnsResult<Void> increaseViewCount(@PathVariable Long articleId) {
+                try {
+                        articleService.increaseViewCount(articleId); // 서비스에서 조회수 증가
+                        return new SkmnsResult<>("조회수가 증가했습니다.", HttpStatus.OK.value());
+                } catch (Exception e) {
+                        return new SkmnsResult<>("조회수 증가 실패", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                }
         }
 
         /**
          * 게시글을 수정하는 API
          * 
-         * <p>
-         * 게시글의 제목과 내용을 수정하고, 선택적으로 파일을 추가하거나 삭제할 수 있습니다.
-         * </p>
-         * 
-         * @param id         수정할 게시글의 ID
-         * @param articleDTO 게시글 수정에 필요한 정보가 담긴 DTO 객체
-         * @param fileDTO    파일 관련 정보
-         * @param user       게시글 수정자 (로그인한 사용자)
+         * @param id            게시글 ID
+         * @param title         제목
+         * @param content       내용
+         * @param files         첨부파일
+         * @param deleteFileIds 삭제할 파일 ID들
+         * @param user          수정자 (로그인된 사용자)
          * @return 게시글 수정 성공 메시지
          * @throws IOException 파일 처리 중 오류 발생 시 예외
          */
@@ -144,16 +154,15 @@ public class ArticleController {
                         @RequestParam("title") String title,
                         @RequestParam("content") String content,
                         @RequestPart(value = "files", required = false) List<MultipartFile> files,
-                        @RequestParam(value = "deleteFileIds", required = false) List<Long> deleteFileIds, // Add
-                                                                                                           // deleteFileIds
+                        @RequestParam(value = "deleteFileIds", required = false) List<Long> deleteFileIds,
                         @AuthenticationPrincipal AuthEntity user) throws IOException {
-
-                ArticleVO articleVO = new ArticleVO(id, title, content, null, 0, user.getUsername(),
-                                files != null && !files.isEmpty());
 
                 if (deleteFileIds == null) {
                         deleteFileIds = new ArrayList<>();
                 }
+
+                ArticleVO articleVO = new ArticleVO(id, title, content, null, 0, user.getUsername(),
+                                files != null && !files.isEmpty());
 
                 articleService.updateArticle(articleVO, user, files, deleteFileIds);
 
@@ -163,20 +172,17 @@ public class ArticleController {
         /**
          * 게시글을 삭제하는 API
          * 
-         * <p>
-         * 게시글의 ID를 입력받아 해당 게시글을 삭제합니다. 삭제자는 로그인한 사용자이어야 합니다.
-         * </p>
-         * 
-         * @param id   삭제할 게시글의 ID
-         * @param user 게시글 삭제자 (로그인한 사용자)
+         * @param id   게시글 ID
+         * @param user 삭제자 (로그인된 사용자)
          * @return 게시글 삭제 성공 메시지
          */
         @DeleteMapping("/{id}")
-        public SkmnsResult<Void> deleteArticle(
-                        @PathVariable Long id,
-                        @AuthenticationPrincipal AuthEntity user) {
-
-                articleService.deleteArticle(id, user);
-                return new SkmnsResult<>("게시물이 삭제되었습니다.", HttpStatus.OK.value());
+        public SkmnsResult<Void> deleteArticle(@PathVariable Long id, @AuthenticationPrincipal AuthEntity user) {
+                try {
+                        articleService.deleteArticle(id, user);
+                        return new SkmnsResult<>("게시물이 삭제되었습니다.", HttpStatus.OK.value());
+                } catch (Exception e) {
+                        return new SkmnsResult<>("게시물 삭제 실패", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                }
         }
 }

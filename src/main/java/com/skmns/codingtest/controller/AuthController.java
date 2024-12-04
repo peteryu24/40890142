@@ -1,6 +1,7 @@
 package com.skmns.codingtest.controller;
 
 import com.skmns.codingtest.dto.AuthDTO;
+import com.skmns.codingtest.entity.AuthEntity;
 import com.skmns.codingtest.service.AuthService;
 import com.skmns.codingtest.util.SkmnsResult;
 import com.skmns.codingtest.vo.AuthVO;
@@ -89,9 +90,9 @@ public class AuthController {
      */
     @PostMapping("/login")
     public SkmnsResult<AuthDTO> login(@RequestBody AuthDTO authDTO, HttpSession session) {
-        AuthVO authenticatedUser = authService.authenticate(authDTO.getUsername(), authDTO.getPassword());
+        AuthEntity authenticatedUser = authService.authenticate(authDTO.getUsername(), authDTO.getPassword());
 
-        // SecurityContext에 인증 정보 설정
+        // SecurityContext에 인증 정보 설정 (AuthEntity를 설정)
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 authenticatedUser, null, List.of()); // 권한 추가 가능
         SecurityContextHolder.getContext().setAuthentication(authentication);

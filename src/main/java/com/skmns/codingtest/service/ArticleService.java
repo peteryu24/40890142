@@ -115,4 +115,11 @@ public class ArticleService {
                 fileService.deleteFilesByArticle(article);
                 articleRepository.delete(article);
         }
+
+        public void increaseViewCount(Long articleId) {
+                ArticleEntity article = articleRepository.findById(articleId)
+                                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                article.setViewCount(article.getViewCount() + 1); // 조회수 증가
+                articleRepository.save(article);
+        }
 }

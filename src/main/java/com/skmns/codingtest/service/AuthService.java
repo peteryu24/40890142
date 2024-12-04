@@ -6,6 +6,8 @@ import com.skmns.codingtest.vo.AuthVO;
 
 import jakarta.servlet.http.HttpSession;
 
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,15 +43,16 @@ public class AuthService {
         return new AuthVO(savedUser.getUserId(), savedUser.getUsername());
     }
 
-    public AuthVO authenticate(String username, String password) {
-        AuthEntity user = authRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    public AuthEntity authenticate(String username, String password) {
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new SecurityException("비밀번호가 일치하지 않습니다.");
+        AuthEntity authEntity = authRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(password, authEntity.getPassword())) {
+            throw new BadCredentialsException("Invalid password");
         }
 
-        return new AuthVO(user.getUserId(), user.getUsername());
+        return authEntity;
     }
 
     public boolean isOwner(HttpSession session, Long resourceOwnerId) {
